@@ -71,7 +71,7 @@ static inline int pci_proc_domain(struct pci_bus *bus)
 	return pci_domain_nr(bus);
 }
 
-#define PCIBIOS_MIN_IO	(0)
+#define PCIBIOS_MIN_IO	(0x1000)
 #define PCIBIOS_MIN_MEM	(0)
 
 #define PCI_DMA_BUS_IS_PHYS     (0)

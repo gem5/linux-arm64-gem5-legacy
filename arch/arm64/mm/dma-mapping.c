@@ -27,6 +27,7 @@
 #include <linux/vmalloc.h>
 #include <linux/swiotlb.h>
 #include <linux/amba/bus.h>
+#include <linux/pci.h>
 
 #include <asm/cacheflush.h>
 
@@ -311,22 +312,34 @@ EXPORT_SYMBOL(coherent_swiotlb_dma_ops);
 static int dma_bus_notifier(struct notifier_block *nb,
 			    unsigned long event, void *_dev)
 {
-	struct device *dev = _dev;
+	struct device *dev = _dev, *pdev = _dev;
 
 	if (event != BUS_NOTIFY_ADD_DEVICE)
 		return NOTIFY_DONE;
 
-	if (of_property_read_bool(dev->of_node, "dma-coherent"))
-		set_dma_ops(dev, &coherent_swiotlb_dma_ops);
+    do { 
+        if (of_property_read_bool(pdev->of_node, "dma-coherent"))
+            set_dma_ops(dev, &coherent_swiotlb_dma_ops);
+        // if we've found the first parent from devtree and it's not coherent
+        // we're done
+        if (pdev->of_node)
+            break;
+        pdev = pdev->parent;
+    } while (pdev);
 
 	return NOTIFY_OK;
 }
+
 
 static struct notifier_block platform_bus_nb = {
 	.notifier_call = dma_bus_notifier,
 };
 
 static struct notifier_block amba_bus_nb = {
+	.notifier_call = dma_bus_notifier,
+};
+
+static struct notifier_block pci_bus_nb = {
 	.notifier_call = dma_bus_notifier,
 };
 
@@ -341,6 +354,7 @@ static int __init swiotlb_late_init(void)
 	 */
 	bus_register_notifier(&platform_bus_type, &platform_bus_nb);
 	bus_register_notifier(&amba_bustype, &amba_bus_nb);
+	bus_register_notifier(&pci_bus_type, &pci_bus_nb);
 
 	dma_ops = &noncoherent_swiotlb_dma_ops;
 
