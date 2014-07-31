@@ -58,8 +58,19 @@
 
     memory@80000000 {
         device_type = "memory";
-        reg = <0x00000000 0x80000000 0 0x80000000>;
+        reg = <0x00000000 0x80000000 0x0 0x80000000>;
     };
+
+    memory@880000000 {
+        device_type = "memory";
+        reg = <0x00000008 0x80000000 0x7 0x80000000>;
+    };
+
+    memory@8800000000 {
+        device_type = "memory";
+        reg = <0x00000088 0x00000000 0x78 0x00000000>;
+    };
+
 
     gic: interrupt-controller@2c001000 {
          compatible = "arm,cortex-a15-gic", "arm,cortex-a9-gic";
