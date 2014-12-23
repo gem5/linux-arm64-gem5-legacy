@@ -88,7 +88,6 @@
          compatible = "arm,armv8-timer";
          interrupts = <1 13 0xff01>,
                     <1 14 0xff01>;
-         clock-frequency = <100000000>;
      };
 
     pci {
